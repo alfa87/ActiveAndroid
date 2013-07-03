@@ -55,7 +55,7 @@ public final class Cache {
 			return;
 		}
 
-		sContext = context;
+		sContext = context.getApplicationContext();
 		sModelInfo = new ModelInfo(sContext, configuration);
 		sDatabaseHelper = new DatabaseHelper(sContext, configuration);
 
