@@ -16,23 +16,15 @@ package com.activeandroid;
  * limitations under the License.
  */
 
-import java.util.Collection;
-
-import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.util.LruCache;
-
 import com.activeandroid.serializer.TypeSerializer;
 import com.activeandroid.util.Log;
 
+import java.util.Collection;
+
 public final class Cache {
-	//////////////////////////////////////////////////////////////////////////////////////
-	// PUBLIC CONSTANTS
-	//////////////////////////////////////////////////////////////////////////////////////
-
-	public static final int DEFAULT_CACHE_SIZE = 1024;
-
 	//////////////////////////////////////////////////////////////////////////////////////
 	// PRIVATE MEMBERS
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -57,22 +49,21 @@ public final class Cache {
 	// PUBLIC METHODS
 	//////////////////////////////////////////////////////////////////////////////////////
 
-	public static synchronized void initialize(Application application, int cacheSize) {
+	public static synchronized void initialize(Context context, Configuration configuration) {
 		if (sIsInitialized) {
 			Log.v("ActiveAndroid already initialized.");
 			return;
 		}
 
-		sContext = application;
+		sContext = context;
+		sModelInfo = new ModelInfo(sContext, configuration);
+		sDatabaseHelper = new DatabaseHelper(sContext, configuration);
 
-		sModelInfo = new ModelInfo(application);
-		sDatabaseHelper = new DatabaseHelper(sContext);
-
-        // TODO: It would be nice to override sizeOf here and calculate the memory
-        // actually used, however at this point it seems like the reflection
-        // required would be too costly to be of any benefit. We'll just set a max
-        // object size instead.
-		sEntities = new LruCache<String, Model>(cacheSize);
+		// TODO: It would be nice to override sizeOf here and calculate the memory
+		// actually used, however at this point it seems like the reflection
+		// required would be too costly to be of any benefit. We'll just set a max
+		// object size instead.
+		sEntities = new LruCache<String, Model>(configuration.getCacheSize());
 
 		openDatabase();
 
@@ -138,7 +129,7 @@ public final class Cache {
 		return sModelInfo.getTableInfo(type);
 	}
 
-	public static synchronized TypeSerializer getParserForType(Class<?> type) {
+	public static synchronized TypeSerializer getTypeSerializer(Class<?> type) {
 		return sModelInfo.getTypeSerializer(type);
 	}
 

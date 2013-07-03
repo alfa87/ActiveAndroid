@@ -82,7 +82,7 @@ public abstract class Model {
 				Object value = field.get(this);
 
 				if (value != null) {
-					final TypeSerializer typeSerializer = Cache.getParserForType(fieldType);
+					final TypeSerializer typeSerializer = Cache.getTypeSerializer(fieldType);
 					if (typeSerializer != null) {
 						// serialize data
 						value = typeSerializer.serialize(value);
@@ -185,7 +185,7 @@ public abstract class Model {
 
 			try {
 				boolean columnIsNull = cursor.isNull(columnIndex);
-				TypeSerializer typeSerializer = Cache.getParserForType(fieldType);
+				TypeSerializer typeSerializer = Cache.getTypeSerializer(fieldType);
 				Object value = null;
 
 				if (typeSerializer != null) {

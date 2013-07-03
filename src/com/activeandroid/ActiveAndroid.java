@@ -27,20 +27,24 @@ public final class ActiveAndroid {
 	//////////////////////////////////////////////////////////////////////////////////////
 
 	public static void initialize(Application application) {
-		initialize(application, Cache.DEFAULT_CACHE_SIZE, false);
+		initialize(application, null, false);
 	}
 
-	public static void initialize(Application application, int cacheSize) {
-		initialize(application, cacheSize, false);
+	public static void initialize(Application application, Configuration configuration) {
+		initialize(application, configuration, false);
 	}
 
 	public static void initialize(Application application, boolean loggingEnabled) {
-		initialize(application, Cache.DEFAULT_CACHE_SIZE, loggingEnabled);
+		initialize(application, null, loggingEnabled);
 	}
 
-	public static void initialize(Application application, int cacheSize, boolean loggingEnabled) {
+	public static void initialize(Application application, Configuration configuration, boolean loggingEnabled) {
+		if (configuration == null) {
+			configuration = new Configuration.Builder(application).create();
+		}
+
 		setLoggingEnabled(loggingEnabled);
-		Cache.initialize(application, cacheSize);
+		Cache.initialize(application, configuration);
 	}
 
 	public static void clearCache() {

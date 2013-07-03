@@ -16,6 +16,13 @@ package com.activeandroid;
  * limitations under the License.
  */
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import com.activeandroid.util.Log;
+import com.activeandroid.util.NaturalOrderComparator;
+import com.activeandroid.util.SQLiteUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,32 +34,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-
-import com.activeandroid.util.Log;
-import com.activeandroid.util.NaturalOrderComparator;
-import com.activeandroid.util.ReflectionUtils;
-import com.activeandroid.util.SQLiteUtils;
-
 public final class DatabaseHelper extends SQLiteOpenHelper {
 	//////////////////////////////////////////////////////////////////////////////////////
-	// PRIVATE CONSTANTS
+	// PUBLIC CONSTANTS
 	//////////////////////////////////////////////////////////////////////////////////////
 
-	private final static String AA_DB_NAME = "AA_DB_NAME";
-	private final static String AA_DB_VERSION = "AA_DB_VERSION";
-
-	private final static String MIGRATION_PATH = "migrations";
+	public final static String MIGRATION_PATH = "migrations";
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTORS
 	//////////////////////////////////////////////////////////////////////////////////////
 
-	public DatabaseHelper(Context context) {
-		super(context, getDbName(context), null, getDbVersion(context));
-		copyAttachedDatabase(context);
+	public DatabaseHelper(Context context, Configuration configuration) {
+		super(context, configuration.getDatabaseName(), null, configuration.getDatabaseVersion());
+		copyAttachedDatabase(context, configuration.getDatabaseName());
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -82,9 +77,8 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
 	// PUBLIC METHODS
 	//////////////////////////////////////////////////////////////////////////////////////
 
-	public void copyAttachedDatabase(Context context) {
-		String dbName = getDbName(context);
-		final File dbPath = context.getDatabasePath(dbName);
+	public void copyAttachedDatabase(Context context, String databaseName) {
+		final File dbPath = context.getDatabasePath(databaseName);
 
 		// If the database already exists, return
 		if (dbPath.exists()) {
@@ -96,7 +90,7 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
 
 		// Try to copy database file
 		try {
-			final InputStream inputStream = context.getAssets().open(dbName);
+			final InputStream inputStream = context.getAssets().open(databaseName);
 			final OutputStream output = new FileOutputStream(dbPath);
 
 			byte[] buffer = new byte[1024];
@@ -188,27 +182,5 @@ public final class DatabaseHelper extends SQLiteOpenHelper {
 		catch (IOException e) {
 			Log.e("Failed to execute " + file, e);
 		}
-	}
-
-	// Meta-data methods
-
-	private static String getDbName(Context context) {
-		String aaName = ReflectionUtils.getMetaData(context, AA_DB_NAME);
-
-		if (aaName == null) {
-			aaName = "Application.db";
-		}
-
-		return aaName;
-	}
-
-	private static int getDbVersion(Context context) {
-		Integer aaVersion = ReflectionUtils.getMetaData(context, AA_DB_VERSION);
-
-		if (aaVersion == null || aaVersion == 0) {
-			aaVersion = 1;
-		}
-
-		return aaVersion;
 	}
 }

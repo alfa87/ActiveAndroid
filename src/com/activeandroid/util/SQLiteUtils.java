@@ -128,7 +128,7 @@ public final class SQLiteUtils {
 
 		Class<?> type = field.getType();
 		final String name = tableInfo.getColumnName(field);
-		final TypeSerializer typeSerializer = Cache.getParserForType(field.getType());
+		final TypeSerializer typeSerializer = Cache.getTypeSerializer(field.getType());
 		final Column column = field.getAnnotation(Column.class);
 
 		if (typeSerializer != null) {
